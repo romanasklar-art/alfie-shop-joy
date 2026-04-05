@@ -45,7 +45,7 @@ serve(async (req) => {
             content: [
               {
                 type: "text",
-                text: "Remove the background from this image completely. Make the background fully transparent. Keep only the main drawing/artwork with no background at all. Output a clean PNG with transparent background.",
+                text: "This is a photo of a child's drawing on paper. Remove ONLY the paper/background behind the drawing. Keep ALL drawn elements intact - every line, shape, color, and detail of the child's artwork must be preserved completely. Do not crop, erase, or modify any part of the actual drawing. Only make the paper/background transparent. The result should show the complete child's drawing with a transparent background.",
               },
               {
                 type: "image_url",
