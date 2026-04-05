@@ -1,6 +1,8 @@
-import { Upload, Image as ImageIcon, X } from "lucide-react";
-import { useCallback, useRef } from "react";
+import { Upload, Image as ImageIcon, X, Eraser, Loader2 } from "lucide-react";
+import { useCallback, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ImageUploadProps {
   image: string | null;
@@ -9,6 +11,9 @@ interface ImageUploadProps {
 
 const ImageUpload = ({ image, onImageChange }: ImageUploadProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
+  const [isRemoving, setIsRemoving] = useState(false);
+  const [bgRemoved, setBgRemoved] = useState(false);
+  const { toast } = useToast();
 
   const handleFile = useCallback(
     (file: File) => {
@@ -16,6 +21,7 @@ const ImageUpload = ({ image, onImageChange }: ImageUploadProps) => {
       const reader = new FileReader();
       reader.onload = (e) => {
         onImageChange(e.target?.result as string);
+        setBgRemoved(false);
       };
       reader.readAsDataURL(file);
     },
@@ -35,11 +41,44 @@ const ImageUpload = ({ image, onImageChange }: ImageUploadProps) => {
     e.preventDefault();
   };
 
+  const handleRemoveBackground = async () => {
+    if (!image) return;
+    setIsRemoving(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("remove-background", {
+        body: { imageBase64: image },
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (data?.success && data?.image) {
+        onImageChange(data.image);
+        setBgRemoved(true);
+        toast({
+          title: "Pozadí odstraněno ✨",
+          description: "Kresba je teď bez pozadí.",
+        });
+      } else {
+        throw new Error(data?.error || "Nepodařilo se odstranit pozadí.");
+      }
+    } catch (err: any) {
+      console.error("BG removal error:", err);
+      toast({
+        title: "Chyba",
+        description: err.message || "Nepodařilo se odstranit pozadí.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsRemoving(false);
+    }
+  };
+
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-bold text-center">
-        Nahrajte kresbu 🎨
-      </h2>
+      <h2 className="text-2xl font-bold text-center">Nahrajte kresbu 🎨</h2>
       <p className="text-muted-foreground text-center text-sm">
         Vyfoťte nebo nahrajte obrázek dětské kresby.
       </p>
@@ -67,8 +106,8 @@ const ImageUpload = ({ image, onImageChange }: ImageUploadProps) => {
         </div>
       ) : (
         <div className="mt-6 relative">
-          <div className="configurator-card p-4">
-            <div className="relative rounded-xl overflow-hidden bg-background">
+          <div className="configurator-card p-4 space-y-3">
+            <div className="relative rounded-xl overflow-hidden bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwIiBoZWlnaHQ9IjEwIiBmaWxsPSIjZjBmMGYwIi8+PHJlY3QgeD0iMTAiIHk9IjEwIiB3aWR0aD0iMTAiIGhlaWdodD0iMTAiIGZpbGw9IiNmMGYwZjAiLz48cmVjdCB4PSIxMCIgd2lkdGg9IjEwIiBoZWlnaHQ9IjEwIiBmaWxsPSIjZTBlMGUwIi8+PHJlY3QgeT0iMTAiIHdpZHRoPSIxMCIgaGVpZ2h0PSIxMCIgZmlsbD0iI2UwZTBlMCIvPjwvc3ZnPg==')]">
               <img
                 src={image}
                 alt="Nahraná kresba"
@@ -78,14 +117,44 @@ const ImageUpload = ({ image, onImageChange }: ImageUploadProps) => {
                 variant="destructive"
                 size="icon"
                 className="absolute top-2 right-2 rounded-full w-8 h-8"
-                onClick={() => onImageChange(null)}
+                onClick={() => {
+                  onImageChange(null);
+                  setBgRemoved(false);
+                }}
               >
                 <X className="w-4 h-4" />
               </Button>
             </div>
-            <div className="flex items-center gap-2 mt-3 text-sm text-muted-foreground">
-              <ImageIcon className="w-4 h-4" />
-              <span>Kresba nahrána ✓</span>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <ImageIcon className="w-4 h-4" />
+                <span>
+                  {bgRemoved ? "Pozadí odstraněno ✓" : "Kresba nahrána ✓"}
+                </span>
+              </div>
+
+              {!bgRemoved && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleRemoveBackground}
+                  disabled={isRemoving}
+                  className="gap-2"
+                >
+                  {isRemoving ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Odstraňuji...
+                    </>
+                  ) : (
+                    <>
+                      <Eraser className="w-4 h-4" />
+                      Odstranit pozadí
+                    </>
+                  )}
+                </Button>
+              )}
             </div>
           </div>
         </div>
