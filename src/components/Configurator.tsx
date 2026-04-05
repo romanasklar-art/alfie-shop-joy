@@ -110,6 +110,8 @@ const Configurator = () => {
               uploadedImage={uploadedImage}
               selectedPlacement={selectedPlacement}
               onPlacementChange={setSelectedPlacement}
+              imageRotation={imageRotation}
+              onRotate={setImageRotation}
             />
           )}
           {currentStep === 4 && selectedProduct && uploadedImage && (
