@@ -77,6 +77,8 @@ interface ProductPreviewProps {
   uploadedImage: string;
   selectedPlacement: string | null;
   onPlacementChange: (id: string) => void;
+  imageRotation: number;
+  onRotate: (deg: number) => void;
 }
 
 const ProductPreview = ({
