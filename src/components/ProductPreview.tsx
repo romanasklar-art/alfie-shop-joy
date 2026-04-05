@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Heart, Shirt, RotateCcw } from "lucide-react";
+import { Heart, Shirt, RotateCcw, RotateCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { products } from "./ProductSelector";
 
 export type EmbroiderySize = "small" | "large";
