@@ -44,7 +44,7 @@ const OrderNotes = ({ productId, uploadedImage, notes, onNotesChange }: OrderNot
             id="notes"
             value={notes}
             onChange={(e) => onNotesChange(e.target.value)}
-            placeholder="Např. „Vyšijte prosím jen tu kočičku vpravo" nebo „Odstraňte pozadí, nechte jen panáčka""
+            placeholder={'Např. "Vyšijte prosím jen tu kočičku vpravo" nebo "Odstraňte pozadí, nechte jen panáčka"'}
             rows={4}
             className="resize-none bg-background"
           />
