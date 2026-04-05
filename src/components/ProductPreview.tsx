@@ -62,7 +62,7 @@ export const placementOptions: PlacementOption[] = [
   },
   {
     id: "back-large",
-    label: "Na záda",
+    label: "Uprostřed zad",
     description: "Velká výšivka na záda",
     size: "large",
     side: "back",
