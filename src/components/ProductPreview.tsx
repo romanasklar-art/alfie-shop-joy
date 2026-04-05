@@ -164,6 +164,31 @@ const ProductPreview = ({
               </div>
             )}
           </div>
+
+          {/* Image rotation */}
+          <div className="flex items-center justify-center gap-2 mt-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onRotate(imageRotation - 90)}
+              className="gap-1.5"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              -90°
+            </Button>
+            <span className="text-xs text-muted-foreground min-w-[3rem] text-center">
+              {imageRotation % 360}°
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onRotate(imageRotation + 90)}
+              className="gap-1.5"
+            >
+              +90°
+              <RotateCw className="w-3.5 h-3.5" />
+            </Button>
+          </div>
         </div>
 
         {/* Placement Options */}
