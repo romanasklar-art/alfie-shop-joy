@@ -21,6 +21,7 @@ const Configurator = () => {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [selectedPlacement, setSelectedPlacement] = useState<string | null>(null);
   const [notes, setNotes] = useState("");
+  const [imageRotation, setImageRotation] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const { toast } = useToast();
 
