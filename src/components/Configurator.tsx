@@ -66,6 +66,7 @@ const Configurator = () => {
               setSelectedProduct(null);
               setUploadedImage(null);
               setSelectedPlacement(null);
+              setImageRotation(0);
               setNotes("");
             }}
             variant="outline"
