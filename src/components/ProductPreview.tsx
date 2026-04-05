@@ -52,13 +52,13 @@ export const placementOptions: PlacementOption[] = [
     imageScale: 18,
   },
   {
-    id: "heart-large",
-    label: "K srdci — velká",
-    description: "Velká výšivka na přední stranu",
+    id: "chest-large",
+    label: "Uprostřed hrudníku",
+    description: "Velká výšivka na střed přední strany",
     size: "large",
     side: "front",
-    position: { x: 55, y: 42 },
-    imageScale: 32,
+    position: { x: 50, y: 45 },
+    imageScale: 35,
   },
   {
     id: "back-large",
