@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Heart, Shirt, RotateCcw } from "lucide-react";
+import { Heart, Shirt, RotateCcw, RotateCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { products } from "./ProductSelector";
 
 export type EmbroiderySize = "small" | "large";
@@ -76,6 +77,8 @@ interface ProductPreviewProps {
   uploadedImage: string;
   selectedPlacement: string | null;
   onPlacementChange: (id: string) => void;
+  imageRotation: number;
+  onRotate: (deg: number) => void;
 }
 
 const ProductPreview = ({
@@ -83,6 +86,8 @@ const ProductPreview = ({
   uploadedImage,
   selectedPlacement,
   onPlacementChange,
+  imageRotation,
+  onRotate,
 }: ProductPreviewProps) => {
   const product = products.find((p) => p.id === productId);
   const [viewSide, setViewSide] = useState<"front" | "back">("front");
@@ -136,7 +141,7 @@ const ProductPreview = ({
                   left: `${placement.position.x}%`,
                   top: `${placement.position.y}%`,
                   width: `${placement.imageScale}%`,
-                  transform: "translate(-50%, -50%)",
+                  transform: `translate(-50%, -50%) rotate(${imageRotation}deg)`,
                 }}
               >
                 <img
@@ -158,6 +163,31 @@ const ProductPreview = ({
                 </p>
               </div>
             )}
+          </div>
+
+          {/* Image rotation */}
+          <div className="flex items-center justify-center gap-2 mt-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onRotate(imageRotation - 90)}
+              className="gap-1.5"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              -90°
+            </Button>
+            <span className="text-xs text-muted-foreground min-w-[3rem] text-center">
+              {imageRotation % 360}°
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onRotate(imageRotation + 90)}
+              className="gap-1.5"
+            >
+              +90°
+              <RotateCw className="w-3.5 h-3.5" />
+            </Button>
           </div>
         </div>
 

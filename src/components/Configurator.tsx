@@ -21,6 +21,7 @@ const Configurator = () => {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [selectedPlacement, setSelectedPlacement] = useState<string | null>(null);
   const [notes, setNotes] = useState("");
+  const [imageRotation, setImageRotation] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const { toast } = useToast();
 
@@ -65,6 +66,7 @@ const Configurator = () => {
               setSelectedProduct(null);
               setUploadedImage(null);
               setSelectedPlacement(null);
+              setImageRotation(0);
               setNotes("");
             }}
             variant="outline"
@@ -109,6 +111,8 @@ const Configurator = () => {
               uploadedImage={uploadedImage}
               selectedPlacement={selectedPlacement}
               onPlacementChange={setSelectedPlacement}
+              imageRotation={imageRotation}
+              onRotate={setImageRotation}
             />
           )}
           {currentStep === 4 && selectedProduct && uploadedImage && (
