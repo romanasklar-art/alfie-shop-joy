@@ -141,7 +141,7 @@ const ProductPreview = ({
                   left: `${placement.position.x}%`,
                   top: `${placement.position.y}%`,
                   width: `${placement.imageScale}%`,
-                  transform: "translate(-50%, -50%)",
+                  transform: `translate(-50%, -50%) rotate(${imageRotation}deg)`,
                 }}
               >
                 <img
