@@ -86,6 +86,8 @@ const ProductPreview = ({
   uploadedImage,
   selectedPlacement,
   onPlacementChange,
+  imageRotation,
+  onRotate,
 }: ProductPreviewProps) => {
   const product = products.find((p) => p.id === productId);
   const [viewSide, setViewSide] = useState<"front" | "back">("front");
