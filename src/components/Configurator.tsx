@@ -19,6 +19,7 @@ const Configurator = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [selectedPlacement, setSelectedPlacement] = useState<string | null>(null);
   const [notes, setNotes] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const { toast } = useToast();
@@ -26,6 +27,7 @@ const Configurator = () => {
   const canGoNext = () => {
     if (currentStep === 1) return !!selectedProduct;
     if (currentStep === 2) return !!uploadedImage;
+    if (currentStep === 3) return !!selectedPlacement;
     return true;
   };
 
@@ -62,6 +64,7 @@ const Configurator = () => {
               setCurrentStep(1);
               setSelectedProduct(null);
               setUploadedImage(null);
+              setSelectedPlacement(null);
               setNotes("");
             }}
             variant="outline"
@@ -94,9 +97,7 @@ const Configurator = () => {
           {currentStep === 1 && (
             <ProductSelector
               selected={selectedProduct}
-              onSelect={(id) => {
-                setSelectedProduct(id);
-              }}
+              onSelect={(id) => setSelectedProduct(id)}
             />
           )}
           {currentStep === 2 && (
@@ -106,6 +107,8 @@ const Configurator = () => {
             <ProductPreview
               productId={selectedProduct}
               uploadedImage={uploadedImage}
+              selectedPlacement={selectedPlacement}
+              onPlacementChange={setSelectedPlacement}
             />
           )}
           {currentStep === 4 && selectedProduct && uploadedImage && (
