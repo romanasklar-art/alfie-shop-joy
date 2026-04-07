@@ -32,12 +32,14 @@ const ZoneItem = ({
 }: ZoneItemProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isRemoving, setIsRemoving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [bgRemoved, setBgRemoved] = useState(false);
   const [originalImage, setOriginalImage] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleFile = useCallback(
     async (file: File) => {
+      setIsUploading(true);
       try {
         const dataUrl = await getImageDataUrlFromFile(file);
         onImageChange(dataUrl);
@@ -49,6 +51,8 @@ const ZoneItem = ({
           description: err.message || "Zkuste prosím JPG, PNG nebo HEIC.",
           variant: "destructive",
         });
+      } finally {
+        setIsUploading(false);
       }
     },
     [onImageChange, toast]
@@ -127,7 +131,7 @@ const ZoneItem = ({
 
       {isActive && (
         <div className="px-3 pb-3 space-y-2">
-          {!image ? (
+          {!image && !isUploading ? (
             <>
               <button
                 type="button"
@@ -145,6 +149,11 @@ const ZoneItem = ({
                 onChange={handleInputChange}
               />
             </>
+          ) : isUploading ? (
+            <div className="flex items-center justify-center gap-2 py-3 px-4 text-sm text-muted-foreground">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Nahrávám obrázek…
+            </div>
           ) : (
             <div className="flex flex-col gap-2 p-2 rounded-lg bg-background border border-border">
               <div className="relative">
