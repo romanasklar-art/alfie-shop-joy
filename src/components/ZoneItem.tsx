@@ -3,6 +3,7 @@ import { useCallback, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { getImageDataUrlFromFile } from "@/lib/image-file";
 import type { PlacementZone } from "@/config/products";
 
 interface ZoneItemProps {
@@ -35,19 +36,29 @@ const ZoneItem = ({
   const { toast } = useToast();
 
   const handleFile = useCallback(
-    (file: File) => {
-      if (!file.type.startsWith("image/")) return;
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const dataUrl = e.target?.result as string;
+    async (file: File) => {
+      try {
+        const dataUrl = await getImageDataUrlFromFile(file);
         onImageChange(dataUrl);
         setOriginalImage(dataUrl);
         setBgRemoved(false);
-      };
-      reader.readAsDataURL(file);
+      } catch (err: any) {
+        toast({
+          title: "Soubor se nepodařilo nahrát",
+          description: err.message || "Zkuste prosím JPG, PNG nebo HEIC.",
+          variant: "destructive",
+        });
+      }
     },
-    [onImageChange]
+    [onImageChange, toast]
   );
+
+  const handleInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    await handleFile(file);
+  };
 
   const handleRemoveBackground = async () => {
     if (!image) return;
@@ -81,13 +92,11 @@ const ZoneItem = ({
           : "border-border hover:border-primary/40 bg-card"
       }`}
     >
-      {/* Header — toggle zone */}
       <button
         onClick={onToggle}
         className="w-full flex items-center gap-3 p-3 text-left"
         disabled={isBlocked}
       >
-        {/* Radio indicator */}
         <div
           className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
             isActive ? "border-primary bg-primary" : "border-muted-foreground/40"
@@ -96,16 +105,13 @@ const ZoneItem = ({
           {isActive && <div className="w-2 h-2 rounded-full bg-primary-foreground" />}
         </div>
 
-        {/* Color dot */}
         <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: zone.barva }} />
 
-        {/* Text */}
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold">{zone.nazev}</p>
           <p className="text-xs text-muted-foreground">{zone.info}</p>
         </div>
 
-        {/* Price badge */}
         <span
           className={`text-xs font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${
             priceBadge.free
@@ -117,27 +123,26 @@ const ZoneItem = ({
         </span>
       </button>
 
-      {/* Upload section — only when active */}
       {isActive && (
         <div className="px-3 pb-3 space-y-2">
           {!image ? (
-            <label
-              className="upload-zone flex items-center gap-2 py-3 px-4 cursor-pointer text-sm text-muted-foreground"
-              onClick={() => inputRef.current?.click()}
-            >
-              <Upload className="w-4 h-4" />
-              Nahrát kresbu pro toto umístění
+            <>
+              <button
+                type="button"
+                className="upload-zone flex w-full items-center gap-2 py-3 px-4 text-sm text-muted-foreground"
+                onClick={() => inputRef.current?.click()}
+              >
+                <Upload className="w-4 h-4" />
+                Nahrát kresbu pro toto umístění
+              </button>
               <input
                 ref={inputRef}
                 type="file"
-                accept="image/*"
+                accept="image/*,.heic,.heif"
                 className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) handleFile(file);
-                }}
+                onChange={handleInputChange}
               />
-            </label>
+            </>
           ) : (
             <div className="flex flex-col gap-2 p-2 rounded-lg bg-background border border-border">
               <div className="relative">
@@ -165,20 +170,17 @@ const ZoneItem = ({
                 </Button>
               </div>
 
-              {/* Controls row */}
               <div className="flex items-center justify-between gap-2 flex-wrap">
-                {/* Rotation */}
                 <div className="flex items-center gap-1">
                   <Button variant="outline" size="sm" className="h-7 px-2 gap-1 text-xs" onClick={() => onRotate(imageRotation - 90)}>
                     <RotateCcw className="w-3 h-3" /> -90°
                   </Button>
-                  <span className="text-xs text-muted-foreground w-8 text-center">{imageRotation % 360}°</span>
+                  <span className="text-xs text-muted-foreground w-8 text-center">{((imageRotation % 360) + 360) % 360}°</span>
                   <Button variant="outline" size="sm" className="h-7 px-2 gap-1 text-xs" onClick={() => onRotate(imageRotation + 90)}>
                     +90° <RotateCw className="w-3 h-3" />
                   </Button>
                 </div>
 
-                {/* BG removal */}
                 {!bgRemoved ? (
                   <Button
                     variant="outline"
