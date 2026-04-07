@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { getImageDataUrlFromFile, resizeImageDataUrl } from "@/lib/image-file";
-import { getImageDataUrlFromFile } from "@/lib/image-file";
+
 import type { PlacementZone } from "@/config/products";
 
 interface ZoneItemProps {
