@@ -3,6 +3,7 @@ import { useCallback, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { getImageDataUrlFromFile } from "@/lib/image-file";
 
 interface ImageUploadProps {
   image: string | null;
@@ -17,31 +18,41 @@ const ImageUpload = ({ image, onImageChange }: ImageUploadProps) => {
   const { toast } = useToast();
 
   const handleFile = useCallback(
-    (file: File) => {
-      if (!file.type.startsWith("image/")) return;
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const dataUrl = e.target?.result as string;
+    async (file: File) => {
+      try {
+        const dataUrl = await getImageDataUrlFromFile(file);
         onImageChange(dataUrl);
         setOriginalImage(dataUrl);
         setBgRemoved(false);
-      };
-      reader.readAsDataURL(file);
+      } catch (err: any) {
+        toast({
+          title: "Soubor se nepodařilo nahrát",
+          description: err.message || "Zkuste prosím JPG, PNG nebo HEIC.",
+          variant: "destructive",
+        });
+      }
     },
-    [onImageChange]
+    [onImageChange, toast]
   );
 
   const handleDrop = useCallback(
-    (e: React.DragEvent) => {
+    async (e: React.DragEvent) => {
       e.preventDefault();
       const file = e.dataTransfer.files[0];
-      if (file) handleFile(file);
+      if (file) await handleFile(file);
     },
     [handleFile]
   );
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
+  };
+
+  const handleInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    await handleFile(file);
   };
 
   const handleRemoveBackground = async () => {
@@ -185,12 +196,9 @@ const ImageUpload = ({ image, onImageChange }: ImageUploadProps) => {
       <input
         ref={inputRef}
         type="file"
-        accept="image/*"
+        accept="image/*,.heic,.heif"
         className="hidden"
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (file) handleFile(file);
-        }}
+        onChange={handleInputChange}
       />
     </div>
   );
