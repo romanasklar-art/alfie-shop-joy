@@ -65,8 +65,9 @@ const ZoneItem = ({
     if (!image) return;
     setIsRemoving(true);
     try {
+      const resized = await resizeImageDataUrl(image, 1024);
       const { data, error } = await supabase.functions.invoke("remove-background", {
-        body: { imageBase64: image },
+        body: { imageBase64: resized },
       });
       if (error) throw new Error(error.message);
       if (data?.success && data?.image) {
