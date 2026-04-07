@@ -3,7 +3,7 @@ import { useCallback, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { getImageDataUrlFromFile } from "@/lib/image-file";
+import { getImageDataUrlFromFile, resizeImageDataUrl } from "@/lib/image-file";
 
 interface ImageUploadProps {
   image: string | null;
