@@ -3,7 +3,7 @@ import { useCallback, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { getImageDataUrlFromFile } from "@/lib/image-file";
+import { getImageDataUrlFromFile, resizeImageDataUrl } from "@/lib/image-file";
 
 interface ImageUploadProps {
   image: string | null;
@@ -60,8 +60,9 @@ const ImageUpload = ({ image, onImageChange }: ImageUploadProps) => {
     setIsRemoving(true);
 
     try {
+      const resized = await resizeImageDataUrl(image, 1024);
       const { data, error } = await supabase.functions.invoke("remove-background", {
-        body: { imageBase64: image },
+        body: { imageBase64: resized },
       });
 
       if (error) {

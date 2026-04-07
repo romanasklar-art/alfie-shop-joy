@@ -3,7 +3,8 @@ import { useCallback, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { getImageDataUrlFromFile } from "@/lib/image-file";
+import { getImageDataUrlFromFile, resizeImageDataUrl } from "@/lib/image-file";
+
 import type { PlacementZone } from "@/config/products";
 
 interface ZoneItemProps {
@@ -64,8 +65,9 @@ const ZoneItem = ({
     if (!image) return;
     setIsRemoving(true);
     try {
+      const resized = await resizeImageDataUrl(image, 1024);
       const { data, error } = await supabase.functions.invoke("remove-background", {
-        body: { imageBase64: image },
+        body: { imageBase64: resized },
       });
       if (error) throw new Error(error.message);
       if (data?.success && data?.image) {
