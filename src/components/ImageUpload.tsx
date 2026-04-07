@@ -1,4 +1,4 @@
-import { Upload, Image as ImageIcon, X, Eraser, Loader2 } from "lucide-react";
+import { Upload, Image as ImageIcon, X, Eraser, Loader2, RotateCcw } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -13,6 +13,7 @@ const ImageUpload = ({ image, onImageChange }: ImageUploadProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isRemoving, setIsRemoving] = useState(false);
   const [bgRemoved, setBgRemoved] = useState(false);
+  const [originalImage, setOriginalImage] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleFile = useCallback(
@@ -20,7 +21,9 @@ const ImageUpload = ({ image, onImageChange }: ImageUploadProps) => {
       if (!file.type.startsWith("image/")) return;
       const reader = new FileReader();
       reader.onload = (e) => {
-        onImageChange(e.target?.result as string);
+        const dataUrl = e.target?.result as string;
+        onImageChange(dataUrl);
+        setOriginalImage(dataUrl);
         setBgRemoved(false);
       };
       reader.readAsDataURL(file);
@@ -119,6 +122,7 @@ const ImageUpload = ({ image, onImageChange }: ImageUploadProps) => {
                 className="absolute top-2 right-2 rounded-full w-8 h-8"
                 onClick={() => {
                   onImageChange(null);
+                  setOriginalImage(null);
                   setBgRemoved(false);
                 }}
               >
@@ -134,7 +138,7 @@ const ImageUpload = ({ image, onImageChange }: ImageUploadProps) => {
                 </span>
               </div>
 
-              {!bgRemoved && (
+              {!bgRemoved ? (
                 <Button
                   variant="outline"
                   size="sm"
@@ -154,6 +158,24 @@ const ImageUpload = ({ image, onImageChange }: ImageUploadProps) => {
                     </>
                   )}
                 </Button>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-accent font-medium">Pozadí odstraněno ✓</span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-2"
+                    onClick={() => {
+                      if (originalImage) {
+                        onImageChange(originalImage);
+                        setBgRemoved(false);
+                        toast({ title: "Originál obnoven", description: "Kresba je zpět s původním pozadím." });
+                      }
+                    }}
+                  >
+                    <RotateCcw className="w-4 h-4" /> Vrátit originál
+                  </Button>
+                </div>
               )}
             </div>
           </div>

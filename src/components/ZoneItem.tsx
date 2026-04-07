@@ -31,6 +31,7 @@ const ZoneItem = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const [isRemoving, setIsRemoving] = useState(false);
   const [bgRemoved, setBgRemoved] = useState(false);
+  const [originalImage, setOriginalImage] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleFile = useCallback(
@@ -38,7 +39,9 @@ const ZoneItem = ({
       if (!file.type.startsWith("image/")) return;
       const reader = new FileReader();
       reader.onload = (e) => {
-        onImageChange(e.target?.result as string);
+        const dataUrl = e.target?.result as string;
+        onImageChange(dataUrl);
+        setOriginalImage(dataUrl);
         setBgRemoved(false);
       };
       reader.readAsDataURL(file);
@@ -154,6 +157,7 @@ const ZoneItem = ({
                   className="absolute top-1 right-1 rounded-full w-6 h-6"
                   onClick={() => {
                     onImageChange(null);
+                    setOriginalImage(null);
                     setBgRemoved(false);
                   }}
                 >
@@ -190,7 +194,23 @@ const ZoneItem = ({
                     )}
                   </Button>
                 ) : (
-                  <span className="text-xs text-accent font-medium">Pozadí odstraněno ✓</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-accent font-medium">Pozadí odstraněno ✓</span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-7 gap-1 text-xs"
+                      onClick={() => {
+                        if (originalImage) {
+                          onImageChange(originalImage);
+                          setBgRemoved(false);
+                          toast({ title: "Originál obnoven", description: "Kresba je zpět s původním pozadím." });
+                        }
+                      }}
+                    >
+                      <RotateCcw className="w-3 h-3" /> Vrátit originál
+                    </Button>
+                  </div>
                 )}
               </div>
             </div>
