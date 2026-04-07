@@ -1,4 +1,4 @@
-import { Upload, Image as ImageIcon, X, Eraser, Loader2 } from "lucide-react";
+import { Upload, Image as ImageIcon, X, Eraser, Loader2, RotateCcw } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
