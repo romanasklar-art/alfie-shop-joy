@@ -45,7 +45,7 @@ serve(async (req) => {
             content: [
               {
                 type: "text",
-                text: "This is a photo of a child's drawing on paper. Remove ONLY the paper/background behind the drawing. Keep ALL drawn elements intact - every line, shape, color, and detail of the child's artwork must be preserved completely. Do not crop, erase, or modify any part of the actual drawing. Only make the paper/background transparent. The result should show the complete child's drawing with a transparent background.",
+                text: "You are an image editing tool. Your ONLY task is to make the paper/background transparent while keeping the child's drawing EXACTLY as it is. STRICT RULES: 1) DO NOT redraw, regenerate, or artistically interpret the drawing. 2) DO NOT add, remove, or modify ANY lines, shapes, or colors from the original artwork. 3) DO NOT crop or resize the image. 4) ONLY replace the white/light paper background pixels with transparency (alpha=0). 5) Keep ALL crayon strokes, pencil lines, marker marks, paint spots — every single pixel of the child's artwork must remain pixel-perfect. 6) If the background is textured paper, remove the paper texture but keep all drawn content. Think of this as a chroma-key operation on the paper color, not an artistic transformation.",
               },
               {
                 type: "image_url",
