@@ -13,12 +13,14 @@ interface ImageUploadProps {
 const ImageUpload = ({ image, onImageChange }: ImageUploadProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isRemoving, setIsRemoving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [bgRemoved, setBgRemoved] = useState(false);
   const [originalImage, setOriginalImage] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleFile = useCallback(
     async (file: File) => {
+      setIsUploading(true);
       try {
         const dataUrl = await getImageDataUrlFromFile(file);
         onImageChange(dataUrl);
@@ -30,6 +32,8 @@ const ImageUpload = ({ image, onImageChange }: ImageUploadProps) => {
           description: err.message || "Zkuste prosím JPG, PNG nebo HEIC.",
           variant: "destructive",
         });
+      } finally {
+        setIsUploading(false);
       }
     },
     [onImageChange, toast]
@@ -98,7 +102,7 @@ const ImageUpload = ({ image, onImageChange }: ImageUploadProps) => {
         Vyfoťte nebo nahrajte obrázek dětské kresby.
       </p>
 
-      {!image ? (
+      {!image && !isUploading ? (
         <div
           className="upload-zone mt-6"
           onDrop={handleDrop}
@@ -118,6 +122,11 @@ const ImageUpload = ({ image, onImageChange }: ImageUploadProps) => {
               </p>
             </div>
           </div>
+        </div>
+      ) : isUploading ? (
+        <div className="mt-6 flex flex-col items-center gap-3 py-8">
+          <Loader2 className="w-10 h-10 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground">Nahrávám obrázek…</p>
         </div>
       ) : (
         <div className="mt-6 relative">
