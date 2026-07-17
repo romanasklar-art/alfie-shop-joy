@@ -1,0 +1,74 @@
+{
+  "version": 1,
+  "sdk_version": "0.23.0",
+  "path": "/functions/v1/mcp",
+  "auth": {
+    "type": "none"
+  },
+  "mcp": {
+    "server": {
+      "name": "alfie-store-mcp",
+      "version": "0.1.0",
+      "title": "Alfie Store konfigurátor"
+    },
+    "tools": [
+      {
+        "name": "list_products",
+        "title": "List products",
+        "description": "Vrátí seznam všech typů produktů (tričko, mikina, dětské, taška, polštář, zástěra) s jejich Upgates slugy.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_product_zones",
+        "title": "Get product placement zones",
+        "description": "Vrátí konfiguraci umístění výšivky pro daný typ produktu — pozice, velikosti a kolize.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "product": {
+              "type": "string",
+              "description": "Klíč produktu (tricko, mikina, detske, taska_velka, polstar, zastera) nebo Upgates slug."
+            }
+          },
+          "required": [
+            "product"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_pricing",
+        "title": "Get embroidery pricing",
+        "description": "Vrátí ceník výšivek Alfie Store (příplatky za další výšivky).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
