@@ -261,10 +261,13 @@ const Configurator = () => {
               onClick={handleSubmit}
               className="w-full gap-2"
               size="lg"
-              disabled={activeZones.length === 0 || hasCollision}
+              disabled={activeZones.length === 0 || hasCollision || isSubmitting}
             >
-              <Send className="w-4 h-4" />
-              Odeslat objednávku
+              {isSubmitting ? (
+                <><Loader2 className="w-4 h-4 animate-spin" /> Odesílám a ukládám…</>
+              ) : (
+                <><Send className="w-4 h-4" /> Odeslat objednávku</>
+              )}
             </Button>
           </div>
         </div>
