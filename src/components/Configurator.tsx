@@ -46,6 +46,8 @@ const Configurator = () => {
   const [zoneImages, setZoneImages] = useState<Record<string, ZoneImageData>>({});
   const [notes, setNotes] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [orderNumber, setOrderNumber] = useState<string | null>(null);
   const { toast } = useToast();
 
   if (!product) {
