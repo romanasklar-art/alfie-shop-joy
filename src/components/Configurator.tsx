@@ -93,7 +93,7 @@ const Configurator = () => {
     }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (activeZones.length === 0) {
       toast({ title: "Vyberte alespoň jedno umístění", variant: "destructive" });
       return;
@@ -103,8 +103,32 @@ const Configurator = () => {
       toast({ title: "Nahrajte kresbu ke všem vybraným umístěním", variant: "destructive" });
       return;
     }
-    setSubmitted(true);
-    toast({ title: "Objednávka odeslána! 🎉", description: "Brzy se vám ozveme s náhledem výšivky." });
+    setIsSubmitting(true);
+    try {
+      const productImage = PRODUCT_IMAGES[typ] || productTricko;
+      const result = await renderAndUploadOrder({
+        productImage,
+        productType: typ,
+        zones: zony,
+        activeZones,
+        zoneImages,
+        notes,
+      });
+      setOrderNumber(result.orderNumber);
+      setSubmitted(true);
+      toast({
+        title: "Objednávka odeslána! 🎉",
+        description: `Číslo objednávky: ${result.orderNumber}`,
+      });
+    } catch (err: any) {
+      toast({
+        title: "Chyba při odesílání",
+        description: err.message || "Zkuste to prosím znovu.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (submitted) {
@@ -118,9 +142,16 @@ const Configurator = () => {
           <p className="text-muted-foreground">
             Vaši objednávku jsme přijali. Ozveme se vám s náhledem výšivky co nejdříve.
           </p>
+          {orderNumber && (
+            <p className="text-sm">
+              Číslo objednávky:{" "}
+              <code className="bg-muted px-2 py-1 rounded font-mono text-xs">{orderNumber}</code>
+            </p>
+          )}
           <Button
             onClick={() => {
               setSubmitted(false);
+              setOrderNumber(null);
               setActiveZones([]);
               setZoneImages({});
               setNotes("");
