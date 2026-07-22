@@ -1,11 +1,12 @@
 import { useState, useMemo } from "react";
-import { Send, Sparkles, AlertTriangle } from "lucide-react";
+import { Send, Sparkles, AlertTriangle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import ZoneItem from "./ZoneItem";
 import ProductMockup from "./ProductMockup";
 import { getProductByParam, isZoneBlocked, getZonePriceBadge } from "@/config/products";
+import { renderAndUploadOrder } from "@/lib/render-order";
 import type { PlacementZone } from "@/config/products";
 
 // Product images (reuse existing assets)
@@ -45,6 +46,8 @@ const Configurator = () => {
   const [zoneImages, setZoneImages] = useState<Record<string, ZoneImageData>>({});
   const [notes, setNotes] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [orderNumber, setOrderNumber] = useState<string | null>(null);
   const { toast } = useToast();
 
   if (!product) {
@@ -90,7 +93,7 @@ const Configurator = () => {
     }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (activeZones.length === 0) {
       toast({ title: "Vyberte alespoň jedno umístění", variant: "destructive" });
       return;
@@ -100,8 +103,32 @@ const Configurator = () => {
       toast({ title: "Nahrajte kresbu ke všem vybraným umístěním", variant: "destructive" });
       return;
     }
-    setSubmitted(true);
-    toast({ title: "Objednávka odeslána! 🎉", description: "Brzy se vám ozveme s náhledem výšivky." });
+    setIsSubmitting(true);
+    try {
+      const productImage = PRODUCT_IMAGES[typ] || productTricko;
+      const result = await renderAndUploadOrder({
+        productImage,
+        productType: typ,
+        zones: zony,
+        activeZones,
+        zoneImages,
+        notes,
+      });
+      setOrderNumber(result.orderNumber);
+      setSubmitted(true);
+      toast({
+        title: "Objednávka odeslána! 🎉",
+        description: `Číslo objednávky: ${result.orderNumber}`,
+      });
+    } catch (err: any) {
+      toast({
+        title: "Chyba při odesílání",
+        description: err.message || "Zkuste to prosím znovu.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (submitted) {
@@ -115,9 +142,16 @@ const Configurator = () => {
           <p className="text-muted-foreground">
             Vaši objednávku jsme přijali. Ozveme se vám s náhledem výšivky co nejdříve.
           </p>
+          {orderNumber && (
+            <p className="text-sm">
+              Číslo objednávky:{" "}
+              <code className="bg-muted px-2 py-1 rounded font-mono text-xs">{orderNumber}</code>
+            </p>
+          )}
           <Button
             onClick={() => {
               setSubmitted(false);
+              setOrderNumber(null);
               setActiveZones([]);
               setZoneImages({});
               setNotes("");
@@ -227,10 +261,13 @@ const Configurator = () => {
               onClick={handleSubmit}
               className="w-full gap-2"
               size="lg"
-              disabled={activeZones.length === 0 || hasCollision}
+              disabled={activeZones.length === 0 || hasCollision || isSubmitting}
             >
-              <Send className="w-4 h-4" />
-              Odeslat objednávku
+              {isSubmitting ? (
+                <><Loader2 className="w-4 h-4 animate-spin" /> Odesílám a ukládám…</>
+              ) : (
+                <><Send className="w-4 h-4" /> Odeslat objednávku</>
+              )}
             </Button>
           </div>
         </div>
