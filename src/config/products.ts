@@ -133,16 +133,16 @@ export function getZonePriceBadge(
   allZones: PlacementZone[]
 ): { label: string; free: boolean } {
   if (zone.typ === "velka") return { label: "+500 Kč", free: false };
-  if (zone.typ === "navic") return { label: "+300 Kč", free: false };
-  // typ === "mala" — first one is free
-  const activeMala = activeZones.filter((id) => {
+  // Small embroidery (13x13) — both "mala" and "navic" count as small.
+  // The FIRST small embroidery on the order is always free, no matter which position.
+  const smallActive = activeZones.filter((id) => {
     const z = allZones.find((x) => x.id === id);
-    return z && z.typ === "mala";
+    return z && (z.typ === "mala" || z.typ === "navic");
   });
-  const isFirst = activeMala.length === 0 || (activeMala.length === 1 && activeMala[0] === zone.id);
   const isActive = activeZones.includes(zone.id);
   if (!isActive) {
-    return activeMala.length === 0 ? { label: "v ceně", free: true } : { label: "+300 Kč", free: false };
+    return smallActive.length === 0 ? { label: "v ceně", free: true } : { label: "+300 Kč", free: false };
   }
-  return isFirst ? { label: "v ceně", free: true } : { label: "+300 Kč", free: false };
+  const isFirstSmall = smallActive[0] === zone.id;
+  return isFirstSmall ? { label: "v ceně", free: true } : { label: "+300 Kč", free: false };
 }
