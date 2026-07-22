@@ -1,11 +1,12 @@
 import { useState, useMemo } from "react";
-import { Send, Sparkles, AlertTriangle } from "lucide-react";
+import { Send, Sparkles, AlertTriangle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import ZoneItem from "./ZoneItem";
 import ProductMockup from "./ProductMockup";
 import { getProductByParam, isZoneBlocked, getZonePriceBadge } from "@/config/products";
+import { renderAndUploadOrder } from "@/lib/render-order";
 import type { PlacementZone } from "@/config/products";
 
 // Product images (reuse existing assets)
