@@ -174,8 +174,8 @@ var get_pricing_default = defineTool3({
 
 // src/lib/mcp/index.ts
 var mcp_default = defineMcp({
-  name: "alfie-store-mcp",
-  title: "Alfie Store konfigur\xE1tor",
+  name: "alfiestore-your-czech-e-shop",
+  title: "Alfiestore: Your Czech E-Shop",
   version: "0.1.0",
   instructions: "N\xE1stroje pro Alfie Store \u2014 e-shop s v\xFD\u0161ivkami d\u011Btsk\xFDch kreseb. Umo\u017E\u0148uje AI asistent\u016Fm \u010D\xEDst konfiguraci produkt\u016F, um\xEDst\u011Bn\xED v\xFD\u0161ivek a cen\xEDk.",
   tools: [list_products_default, get_product_zones_default, get_pricing_default]

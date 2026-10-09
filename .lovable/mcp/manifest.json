@@ -7,9 +7,9 @@
   },
   "mcp": {
     "server": {
-      "name": "alfie-store-mcp",
+      "name": "alfiestore-your-czech-e-shop",
       "version": "0.1.0",
-      "title": "Alfie Store konfigurátor"
+      "title": "Alfiestore: Your Czech E-Shop"
     },
     "tools": [
       {
