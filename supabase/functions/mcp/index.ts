@@ -27,9 +27,36 @@ var POSITIONS = {
 };
 function pos(id) {
   const p = POSITIONS[id] || { x: 50, y: 45, scale: 25 };
-  return { position: { x: p.x, y: p.y }, imageScale: p.scale };
+  return { position: { x: p.x, y: p.y }, imageScale: p.scale, boxW: p.scale, boxH: p.scale };
 }
-var PRODUKTY = {
+var ROZMERY = {
+  tricko: { sirkaCm: 52, podilObrazku: 0.6 },
+  mikina: { sirkaCm: 56, podilObrazku: 0.6 },
+  detske: { sirkaCm: 40, podilObrazku: 0.6 },
+  taska_velka: { sirkaCm: 38, podilObrazku: 0.7 },
+  polstar: { sirkaCm: 45, podilObrazku: 0.85 },
+  zastera: { sirkaCm: 60, podilObrazku: 0.6 }
+};
+function embroideryCm(zone) {
+  const m = zone.info.match(/(\d+)\s*×\s*(\d+)/);
+  if (m) return { w: +m[1], h: +m[2] };
+  return zone.typ === "velka" ? { w: 25, h: 15 } : { w: 13, h: 13 };
+}
+function withRealSize(typ, cfg) {
+  const r = ROZMERY[typ];
+  if (!r) return cfg;
+  const pctPerCm = r.podilObrazku * 100 / r.sirkaCm;
+  return {
+    ...cfg,
+    zony: cfg.zony.map((z4) => {
+      const cm = embroideryCm(z4);
+      const boxW = +(cm.w * pctPerCm).toFixed(2);
+      const boxH = +(cm.h * pctPerCm).toFixed(2);
+      return { ...z4, boxW, boxH, imageScale: boxW };
+    })
+  };
+}
+var RAW_PRODUKTY = {
   tricko: {
     slugy: ["panske-tricko", "damske-tricko", "tricko"],
     zony: [
@@ -90,6 +117,9 @@ var PRODUKTY = {
     kolize: [["mala", "velka"]]
   }
 };
+var PRODUKTY = Object.fromEntries(
+  Object.entries(RAW_PRODUKTY).map(([typ, cfg]) => [typ, withRealSize(typ, cfg)])
+);
 
 // src/lib/mcp/tools/list-products.ts
 var list_products_default = defineTool({

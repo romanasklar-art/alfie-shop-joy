@@ -60,14 +60,15 @@ const ProductMockup = ({
               style={{
                 left: `${zone.position.x}%`,
                 top: `${zone.position.y}%`,
-                width: `${zone.imageScale}%`,
+                width: `${zone.boxW}%`,
+                height: `${zone.boxH}%`,
                 transform: `translate(-50%, -50%) rotate(${data.rotation}deg)`,
               }}
             >
               <img
                 src={data.image}
                 alt="Kresba"
-                className="w-full h-auto rounded"
+                className="w-full h-full object-contain"
                 style={{ filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.15))" }}
               />
             </div>
