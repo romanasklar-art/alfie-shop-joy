@@ -9,6 +9,9 @@ export interface PlacementZone {
   predni: boolean;
   position: { x: number; y: number };
   imageScale: number;
+  /** Real embroidery box in % of mockup width/height (mockup is square). */
+  boxW: number;
+  boxH: number;
 }
 
 export interface ProductConfig {
@@ -36,10 +39,54 @@ const POSITIONS = {
 
 function pos(id: string) {
   const p = POSITIONS[id as keyof typeof POSITIONS] || { x: 50, y: 45, scale: 25 };
-  return { position: { x: p.x, y: p.y }, imageScale: p.scale };
+  return { position: { x: p.x, y: p.y }, imageScale: p.scale, boxW: p.scale, boxH: p.scale };
 }
 
-export const PRODUKTY: Record<string, ProductConfig> = {
+/**
+ * Real product widths (cm, laid flat, size M / standard) and how much of the
+ * square mockup image width the product body occupies. Used to scale drawings
+ * to their real embroidery size.
+ */
+export const ROZMERY: Record<string, { sirkaCm: number; podilObrazku: number }> = {
+  tricko: { sirkaCm: 52, podilObrazku: 0.6 },
+  mikina: { sirkaCm: 56, podilObrazku: 0.6 },
+  detske: { sirkaCm: 40, podilObrazku: 0.6 },
+  taska_velka: { sirkaCm: 38, podilObrazku: 0.7 },
+  polstar: { sirkaCm: 45, podilObrazku: 0.85 },
+  zastera: { sirkaCm: 60, podilObrazku: 0.6 },
+};
+
+export function embroideryCm(zone: { typ: string; info: string }): { w: number; h: number } {
+  const m = zone.info.match(/(\d+)\s*×\s*(\d+)/);
+  if (m) return { w: +m[1], h: +m[2] };
+  return zone.typ === "velka" ? { w: 25, h: 15 } : { w: 13, h: 13 };
+}
+
+function withRealSize(typ: string, cfg: ProductConfig): ProductConfig {
+  const r = ROZMERY[typ];
+  if (!r) return cfg;
+  const pctPerCm = (r.podilObrazku * 100) / r.sirkaCm;
+  return {
+    ...cfg,
+    zony: cfg.zony.map((z) => {
+      const cm = embroideryCm(z);
+      const boxW = +(cm.w * pctPerCm).toFixed(2);
+      const boxH = +(cm.h * pctPerCm).toFixed(2);
+      return { ...z, boxW, boxH, imageScale: boxW };
+    }),
+  };
+}
+
+/** Fit an image (natural w/h) inside the zone box, keeping aspect ratio. Returns size in % of mockup. */
+export function fitInBox(zone: PlacementZone, imgW: number, imgH: number, rotation = 0) {
+  const rotated = Math.abs(rotation) % 180 === 90;
+  const bw = rotated ? zone.boxH : zone.boxW;
+  const bh = rotated ? zone.boxW : zone.boxH;
+  const s = Math.min(bw / imgW, bh / imgH);
+  return { w: imgW * s, h: imgH * s };
+}
+
+const RAW_PRODUKTY: Record<string, ProductConfig> = {
   tricko: {
     slugy: ["panske-tricko", "damske-tricko", "tricko"],
     zony: [
@@ -100,6 +147,10 @@ export const PRODUKTY: Record<string, ProductConfig> = {
     kolize: [["mala", "velka"]],
   },
 };
+
+export const PRODUKTY: Record<string, ProductConfig> = Object.fromEntries(
+  Object.entries(RAW_PRODUKTY).map(([typ, cfg]) => [typ, withRealSize(typ, cfg)])
+);
 
 export function getProductBySlug(slug: string): { typ: string; data: ProductConfig } | null {
   for (const [typ, data] of Object.entries(PRODUKTY)) {

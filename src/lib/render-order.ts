@@ -59,9 +59,10 @@ async function renderSide(
   for (const zone of zonesOnSide) {
     const data = zoneImages[zone.id]!;
     const img = await loadImage(data.image!);
-    const targetW = (zone.imageScale / 100) * W;
-    const scale = targetW / img.width;
-    const targetH = img.height * scale;
+    // Fit inside the real embroidery box (unrotated box, image drawn then rotated)
+    const s = Math.min(((zone.boxW / 100) * W) / img.width, ((zone.boxH / 100) * H) / img.height);
+    const targetW = img.width * s;
+    const targetH = img.height * s;
     const cx = (zone.position.x / 100) * W;
     const cy = (zone.position.y / 100) * H;
 
